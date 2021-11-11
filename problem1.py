@@ -11,6 +11,7 @@ def simulateX(lam, mu, t=50):
 	timeslices = int(t*24)
 	X = np.zeros(timeslices)
 
+	"""
 	# Array for arrivals and departures
 	arrivals = np.random.poisson(lam, (timeslices))
 	departures = np.random.poisson(mu, (timeslices))
@@ -20,18 +21,33 @@ def simulateX(lam, mu, t=50):
 		X[i] = X[i-1] + arrivals[i] - departures[i]
 		if X[i] < 0:
 			X[i] = 0 
+	"""
 
+	# Array for arrivals	
+	arrivals = np.random.poisson(lam, (timeslices))
+
+	Y = np.zeros(len(X))
+	for i in range(1, timeslices):
+		X[i] = X[i-1] + arrivals[i]
+		for j in range(int(X[i])):
+			try:
+				expTime = np.round(np.random.exponential(mu))
+				X[int(i+expTime)] = X[int(i+expTime)] - 1 
+			except IndexError as e:
+				# print(e)
+				pass
 
 	return X
 
-"""
-plt.figure("Test")
-for i in range(1):
-	X = simulateX(lam = 5, mu = 6, t = 50)
 
+def plotRealizations(n, lam, mu, t=50):
+	plt.figure("Test")
+	for i in range(n):
+		X = simulateX(lam, mu, t)
+		plt.plot(X)
+	plt.show()
 
-	plt.plot(X)
-"""
+# plotRealizations(1, 5, 6, t = 5)
 
 # Problem b, 2
 # Finding expected time a patient spends in the UCC
@@ -57,19 +73,24 @@ plt.show()
 # Problem b, 3
 # Finding 95% CI
 
-"""
-lam = 5
-mu = 6
+def getCI(lam, mu, percentage=0.95):
 
-waitTimes = np.zeros(30)
-for i in range(len(waitTimes)):
-	X = simulateX(lam, mu)
-	waitTimes[i] = expectedTime(np.average(X),lam)
+	waitTimes = np.zeros(30)
+	for i in range(len(waitTimes)):
+		X = simulateX(lam, mu, t = 50)
+		waitTimes[i] = expectedTime(np.average(X),lam)
 
-print("Normal distribution")
-CI = st.norm.interval(0.95, loc=np.mean(waitTimes), scale=st.sem(waitTimes))
-print(f"Wait times 95% CI: {CI[0]*60:.0f} - {CI[1]*60:.0f} mins, {CI} hours")
-"""
+	print("Normal distribution")
+	CI = st.norm.interval(0.95, loc=np.mean(waitTimes), scale=st.sem(waitTimes))
+	print(f"Wait times 95% CI: {CI[0]*60:.2f} - {CI[1]*60:.2f} mins, {CI} hours")
+
+exactWaitTime = lambda lam, mu : 1/(mu-lam)
+
+getCI(5,6)
+
+waitHour = exactWaitTime(5,6)
+waitMin = waitHour*60
+print(f"Exact wait time: {waitHour:.4f} hours, {waitMin:.2f}")
 
 # Problem b, 4
 # Plot one realization of {X(t) : t ≥ 0} for the time 0–12 hours.
@@ -92,4 +113,4 @@ def plotRealizationX(lam=5, mu=6):
 	plt.ylabel("Patients")
 	plt.show()
 
-plotRealizationX()
+# plotRealizationX()
