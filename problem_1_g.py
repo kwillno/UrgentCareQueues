@@ -150,6 +150,7 @@ U_arr, N_arr, t_vals = simulate_U_N(0.8, 5, 6, 50)
 
 plot_U_N(U_arr, N_arr, t_vals)
 
-
+plt.plot(np.linspace(0,1,100), np.linspace(0,1,100))
+plt.show()
 
 
