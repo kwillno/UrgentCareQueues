@@ -108,6 +108,8 @@ def simulate_U_N(p=0.8, lam=5, mu=6, t=50):
         val = np.random.exponential((lam), 1)[0]
         t_vals = np.append(t_vals,val)
 
+    print(t_vals)
+
     for i in range(len(t_vals)):
 
         # here we register new arrivals
@@ -144,7 +146,7 @@ def plot_U_N(U_arr, N_arr, t_vals):
         plt.plot(t_vals[i], N_arr[i])
     plt.show
 
-U_arr, N_arr, t_vals = simulate_U_N()
+U_arr, N_arr, t_vals = simulate_U_N(0.8, 5, 6, 50)
 
 plot_U_N(U_arr, N_arr, t_vals)
 
