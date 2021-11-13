@@ -7,7 +7,7 @@ from scipy import stats as st
 # Simulate X(t)
 
 def simulateX(lam, mu, t=50):
-
+	"""
 	# Redefining lambda and mu to account for minute timesteps.
 	lam, mu = lam/60, mu/60
 
@@ -26,7 +26,7 @@ def simulateX(lam, mu, t=50):
 		if X[i] < 0:
 			X[i] = 0 
 	
-	
+	"""
 	"""
 	# Attempt 2, not correct either, here takes multiple patients at a time
 	# Array for arrivals	
@@ -59,6 +59,26 @@ def simulateX(lam, mu, t=50):
 			print(X[i])
 			X[i] = 0
 	"""
+	
+	lam, mu = lam/60, mu/60
+
+	N = t*24*60
+	X = np.zeros(N)
+	t = np.zeros(N)
+
+	for i in range(1,N):
+		a = X[i-1]
+		s = int(np.random.exponential(lam + mu))
+		t[i] = t[i-1] + s
+		u = np.random.uniform()
+		if u < lam/(lam + mu):
+			X[i] = a + 1
+		else:
+			X[i] = a - 1
+
+		if X[i] < 0:
+			X[i] = 0
+
 
 	return X
 
@@ -103,7 +123,7 @@ def getCI(lam, mu, percentage=0.95):
 
 	print("Normal distribution")
 	CI = st.norm.interval(0.95, loc=np.mean(waitTimes), scale=st.sem(waitTimes))
-	print(f"Wait times 95% CI: {CI[0]*60:.2f} - {CI[1]*60:.2f} mins, {CI} hours")
+	print(f"Wait times 95% CI: {CI[0]*60:.2f} - {CI[1]*60:.2f} mins, {CI[0]:.4f} - {CI[1]:.4f} hours")
 
 
 exactWaitTime = lambda lam, mu : 1/(mu-lam)
@@ -143,10 +163,10 @@ def plotRealizationX(lam=5, mu=6):
 
 lam, mu = 5, 6
 
-# plotRealizations(2, lam, mu)
+plotRealizations(2, lam, mu)
 
 getCI(lam,mu)
 
-getExactWaitTime(lam,mu)
+# getExactWaitTime(lam,mu)
 
-plotRealizationX(lam, mu)
+# plotRealizationX(lam, mu)
