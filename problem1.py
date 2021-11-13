@@ -70,8 +70,6 @@ def plotRealizations(n, lam, mu, t=50):
 		plt.plot(X)
 	plt.show()
 
-# plotRealizations(2, 5, 6, t = 10)
-
 # Problem b, 2
 # Finding expected time a patient spends in the UCC
 
@@ -107,15 +105,12 @@ def getCI(lam, mu, percentage=0.95):
 	CI = st.norm.interval(0.95, loc=np.mean(waitTimes), scale=st.sem(waitTimes))
 	print(f"Wait times 95% CI: {CI[0]*60:.2f} - {CI[1]*60:.2f} mins, {CI} hours")
 
-getCI(5,6)
 
 exactWaitTime = lambda lam, mu : 1/(mu-lam)
 def getExactWaitTime(lam, mu):
 	waitHour = exactWaitTime(lam,mu)
 	waitMin = waitHour*60
 	print(f"Exact wait time: {waitHour:.4f} hours, {waitMin:.2f}")
-
-# getExactWaitTime(5,6)
 
 # Problem b, 4
 # Plot one realization of {X(t) : t ≥ 0} for the time 0–12 hours.
@@ -132,10 +127,26 @@ def plotRealizationX(lam=5, mu=6):
 	plt.figure("Try")
 	plt.title("Realization of $X(t)$")
 	for x,y in curves:
-		plt.plot(x,y,"b")
-	# plt.xlabel("Hours")
-	# plt.xlim([-0.4,12.4])
+		x,y = np.array(x), np.array(y)
+		plt.plot(x/60,y,"b")
+	plt.xlabel("Hours")
+	plt.xlim([-0.4,12.4])
 	plt.ylabel("Patients")
 	plt.show()
 
-# plotRealizationX()
+
+
+
+# Main section
+# --------------------------------------------------
+# Function calls go below this line
+
+lam, mu = 5, 6
+
+# plotRealizations(2, lam, mu)
+
+getCI(lam,mu)
+
+getExactWaitTime(lam,mu)
+
+plotRealizationX(lam, mu)
