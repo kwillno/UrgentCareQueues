@@ -66,20 +66,6 @@ def plotRealizations(n, lam, mu, t=50):
 # Using Little's law to find expected wait time
 expectedTime = lambda avgCustomers, arrivalRate: avgCustomers / arrivalRate
 
-"""
-lamb = 5
-my = 6
-
-plt.figure("Test")
-for i in range(10):
-	X = simulateX(lamb, my, t = 50)
-	print(f"Expected wait time is: {expectedTime(np.average(X),lamb)*60:.0f} min")
-
-	plt.plot(X,label=i)
-plt.legend()
-plt.show()
-"""
-
 
 # Problem b, 3
 # Finding 95% CI
@@ -156,7 +142,7 @@ def getWaitTimeExtremes(lam, mu):
 # problem 1g
 
 def simulateUN(p, lam, mu, t=50):
-
+	
 	lam, mu = lam/60, mu/60
 
 	lamU, lamN = p*lam, (1-p)*lam
@@ -169,9 +155,27 @@ def simulateUN(p, lam, mu, t=50):
 
 	for i in range(1,timeslices):
 
+		"""
+		Attempt 2
+		# Soujourn time
+		s = int(np.random.exponential((mu + lam)**(-1)))
+		i = i + s
+
+		change = np.random.choice([-1,1], p=probFunc(U[i]),N[i])
+		U[i] = U[i-s]
+		N[i] = N[i-s]
+
+		if (U[i] == 0 and change == (-1)) or (np.random.uniform > p and change == 1 ):
+			N[i] += change
+		else:
+			U[i] += change
+		"""
+		
+		# Attempt 1 
 		sU = int(np.random.exponential(lamU + muU))
 		blockU = t[i-1] + sU
 		uU = np.random.uniform()
+	
 
 		if U[i-1] > 0:
 			blockN = blockU
@@ -180,22 +184,22 @@ def simulateUN(p, lam, mu, t=50):
 			uN = np.random.uniform()
 			blockN = t[i-1] + sN
 
+		U[i] = U[i-1]
+		N[i] = N[i-1]
+
+
 		# Handling Normal patients
 		if uN < lamN/(lamN + muN):
-			N[i] = N[i-1] + 1
+			N[i] = N[i] + 1
 		elif uN > lamN/(lamN + muN) and t[i] >= blockN:
-			N[i] = N[i-1] - 1
-		else:
-			N[i] = N[i-1]
+			N[i] = N[i] - 1
 
 
 		# Handling urgent patients
 		if uU < lamU/(lamU + muU):
-			U[i] = U[i-1] + 1
+			U[i] = U[i] + 1
 		elif uU > lamU/(lamU + muU) and t[i] >= blockU:
-			U[i] = U[i-1] - 1
-		else:
-			U[i] = U[i-1]
+			U[i] = U[i] - 1
 
 		# Not allowing negative number of patients
 		if U[i] < 0:
@@ -203,6 +207,7 @@ def simulateUN(p, lam, mu, t=50):
 
 		if N[i] < 0:
 			N[i] = 0
+
 
 	return U,N
 
@@ -260,6 +265,15 @@ def getCI_UN(p, lam, mu, percentage=0.95):
 	CI_N = st.norm.interval(0.95, loc=np.mean(waitTimesN), scale=st.sem(waitTimesN))
 	print(f"Wait times 95% CI Normal: {CI_N[0]*60:.2f} - {CI_N[1]*60:.2f} mins, {CI_N[0]:.4f} - {CI_N[1]:.4f} hours")
 
+
+def getExact_UN(p=0.8, lam=5, mu=6):
+	Wu = W_U(p, lam, mu)
+	Wn = W_N(p, lam, mu)
+
+	WuMin, WnMin = Wu*60, Wn*60
+	print(f"Exact wait time: {WuMin:.2f} minutes, {Wu:.4f} hours")
+	print(f"Exact wait time: {WnMin:.2f} minutes, {Wn:.4f} hours")
+
 # Main section
 # --------------------------------------------------
 # Function calls go below this line
@@ -282,3 +296,5 @@ lam, mu = 5, 6
 # plotRealizationUN(t=1)
 
 # getCI_UN(0.8, lam, mu)
+
+# getExact_UN()
