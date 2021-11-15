@@ -142,72 +142,34 @@ def getWaitTimeExtremes(lam, mu):
 # problem 1g
 
 def simulateUN(p, lam, mu, t=50):
-	
+
 	lam, mu = lam/60, mu/60
-
-	lamU, lamN = p*lam, (1-p)*lam
-	muU, muN = mu, mu-lamU
-
+	
 	timeslices = int(t*24*60)
 	U = np.zeros(timeslices)
 	N = np.zeros(timeslices)
-	t = np.linspace(0,timeslices, timeslices+1)
 
-	for i in range(1,timeslices):
-
-		"""
-		Attempt 2
-		# Soujourn time
-		s = int(np.random.exponential((mu + lam)**(-1)))
-		i = i + s
-
-		change = np.random.choice([-1,1], p=probFunc(U[i]),N[i])
-		U[i] = U[i-s]
-		N[i] = N[i-s]
-
-		if (U[i] == 0 and change == (-1)) or (np.random.uniform > p and change == 1 ):
-			N[i] += change
-		else:
-			U[i] += change
-		"""
-		
-		# Attempt 1 
-		sU = int(np.random.exponential(lamU + muU))
-		blockU = t[i-1] + sU
-		uU = np.random.uniform()
-	
-
-		if U[i-1] > 0:
-			blockN = blockU
-		else: 
-			sN = int(np.random.exponential(lamN + muN))
-			uN = np.random.uniform()
-			blockN = t[i-1] + sN
-
+	for i in range(1, timeslices):
+		S = int(np.random.exponential((mu + lam)**(-1)))
+		block = i + S
+		change = np.random.choice([-1,1], p=( mu/(mu+lam) , lam/(mu+lam) ))
 		U[i] = U[i-1]
 		N[i] = N[i-1]
 
+		if not (i < block):
+			if (
+				(U[i] == 0 and change == -1) or 
+				(np.random.uniform() > p and change == 1)
+			):
+				N[i] += change
+			else:
+				U[i] += change
 
-		# Handling Normal patients
-		if uN < lamN/(lamN + muN):
-			N[i] = N[i] + 1
-		elif uN > lamN/(lamN + muN) and t[i] >= blockN:
-			N[i] = N[i] - 1
-
-
-		# Handling urgent patients
-		if uU < lamU/(lamU + muU):
-			U[i] = U[i] + 1
-		elif uU > lamU/(lamU + muU) and t[i] >= blockU:
-			U[i] = U[i] - 1
-
-		# Not allowing negative number of patients
 		if U[i] < 0:
 			U[i] = 0
 
 		if N[i] < 0:
 			N[i] = 0
-
 
 	return U,N
 
