@@ -27,39 +27,6 @@ def simulateX(lam, mu, t=50):
 			X[i] = 0 
 	
 	"""
-	"""
-	# Attempt 2, not correct either, here takes multiple patients at a time
-	# Array for arrivals	
-	arrivals = np.random.poisson(lam, (timeslices))
-
-	Y = np.zeros(timeslices)
-	for i in range(1, timeslices):
-		X[i] = X[i-1] + arrivals[i]
-		counter = 0
-		for j in range(int(arrivals[i])):
-			counter += 1
-			try:
-				expTime = int(np.round(np.random.exponential(mu)))
-				i = i+expTime
-				X[i] = X[i] - 1 
-			except IndexError as e:
-				# print(e)
-				break
-	
-	"""
-	"""
-	# Attempt 3
-	# Array for arrivals and departures
-	arrivals = np.random.poisson(lam, (timeslices))
-	departures = np.random.poisson(mu, (timeslices))
-
-	for i in range(1,timeslices):
-		X[i] = X[i-1] + arrivals[i-1] - departures[i-1]
-		if X[i] < 0:
-			print(X[i])
-			X[i] = 0
-	"""
-	
 	lam, mu = lam/60, mu/60
 
 	N = t*24*60
@@ -158,6 +125,36 @@ def plotRealizationX(lam=5, mu=6):
 	plt.show()
 
 
+# ---------------------------------
+# Problem 1f
+
+W_U = lambda p, lam, mu : 1/(mu-p*lam) 
+W_N = lambda p, lam, mu : mu/((mu - lam)*(mu - p*lam))
+
+def plotWaits(lam, mu):
+	p = np.linspace(0,1)
+
+	W_u = W_U(p, lam, mu)
+	W_n = W_N(p, lam, mu)
+
+	plt.figure("waitTimes")
+	plt.title("Expected time in UCC")
+	plt.plot(p,W_u,label="$W_U$ - Urgent patients")
+	plt.plot(p,W_n,label="$W_N$ - Normal patients")
+	plt.xlabel("Probability that patient is urgent")
+	plt.ylabel("Hours")
+	plt.legend()
+	plt.show()
+
+def getWaitTimeExtremes(lam, mu):
+	print(f"Expected wait time for a normal patient is {W_N(0,lam,mu)}, p~0. ")
+	print(f"Expected wait time for a normal patient is {W_N(1,lam,mu)}, p~1. ")
+
+
+
+# ---------------------------
+# problem 1g
+
 def simulateUN(p, lam, mu, t=50):
 
 	lam, mu = lam/60, mu/60
@@ -177,7 +174,6 @@ def simulateUN(p, lam, mu, t=50):
 		uU = np.random.uniform()
 
 		if U[i-1] > 0:
-			# print(f"blockU should be True : {blockU > t[i]} => {blockU - t[i]}")
 			blockN = blockU
 		else: 
 			sN = int(np.random.exponential(lamN + muN))
@@ -277,6 +273,9 @@ lam, mu = 5, 6
 # getExactWaitTime(lam,mu)
 
 # plotRealizationX(lam, mu)
+
+# plotWaits(lam,mu)
+# getWaitTimeExtremes(lam, mu)
 
 # plotRealizationsUN(1, 0.8, lam, mu, t=1/8)
 
