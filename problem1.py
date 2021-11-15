@@ -69,12 +69,15 @@ def simulateX(lam, mu, t=50):
 	for i in range(1,N):
 		a = X[i-1]
 		s = int(np.random.exponential(lam + mu))
-		t[i] = t[i-1] + s
+		block = t[i-1] + s - 1
 		u = np.random.uniform()
-		if u < lam/(lam + mu):
-			X[i] = a + 1
+		if t[i] > block:
+			if u < lam/(lam + mu):
+				X[i] = a + 1
+			else:
+				X[i] = a - 1
 		else:
-			X[i] = a - 1
+			X[i] = a
 
 		if X[i] < 0:
 			X[i] = 0
@@ -155,7 +158,111 @@ def plotRealizationX(lam=5, mu=6):
 	plt.show()
 
 
+def simulateUN(p, lam, mu, t=50):
 
+	lam, mu = lam/60, mu/60
+
+	lamU, lamN = p*lam, (1-p)*lam
+	muU, muN = mu, mu-lamU
+
+	timeslices = int(t*24*60)
+	U = np.zeros(timeslices)
+	N = np.zeros(timeslices)
+	t = np.linspace(0,timeslices, timeslices+1)
+
+	for i in range(1,timeslices):
+
+		sU = int(np.random.exponential(lamU + muU))
+		blockU = t[i-1] + sU
+		uU = np.random.uniform()
+
+		if U[i-1] > 0:
+			# print(f"blockU should be True : {blockU > t[i]} => {blockU - t[i]}")
+			blockN = blockU
+		else: 
+			sN = int(np.random.exponential(lamN + muN))
+			uN = np.random.uniform()
+			blockN = t[i-1] + sN
+
+		# Handling Normal patients
+		if uN < lamN/(lamN + muN):
+			N[i] = N[i-1] + 1
+		elif uN > lamN/(lamN + muN) and t[i] >= blockN:
+			N[i] = N[i-1] - 1
+		else:
+			N[i] = N[i-1]
+
+
+		# Handling urgent patients
+		if uU < lamU/(lamU + muU):
+			U[i] = U[i-1] + 1
+		elif uU > lamU/(lamU + muU) and t[i] >= blockU:
+			U[i] = U[i-1] - 1
+		else:
+			U[i] = U[i-1]
+
+		# Not allowing negative number of patients
+		if U[i] < 0:
+			U[i] = 0
+
+		if N[i] < 0:
+			N[i] = 0
+
+	return U,N
+
+def plotRealizationsUN(n, p, lam, mu, t=50):
+	plt.figure("Test")
+	for i in range(n):
+		U, N = simulateUN(p, lam, mu, t)
+		plt.plot(U, "b", label="Urgent")
+		plt.plot(N, "r", label="Normal")
+	plt.legend()
+	plt.show()
+
+
+def plotRealizationUN(p=0.8, lam=5, mu=6, t=1):
+	U, N = simulateUN(p, lam, mu, t)
+	curvesU = []
+	curvesN = []
+	i = 1
+	while i < len(U):
+		curvesU.append(([i-1,i], [U[i-1], U[i-1]]))
+		curvesN.append(([i-1,i], [N[i-1], N[i-1]]))
+		i = i+1 
+
+	plt.figure("Try")
+	plt.title("Realization of $X(t)$")
+	plt.plot(0,0,"b",label="Urgent")
+	for x,y in curvesU:
+		x,y = np.array(x), np.array(y)
+		plt.plot(x/60,y,"b")
+
+	plt.plot(0,0,"r",label="Normal")
+	for x,y in curvesN:
+		x,y = np.array(x), np.array(y)
+		plt.plot(x/60,y,"r")
+	plt.xlabel("Hours")
+	plt.ylabel("Patients")
+	plt.legend()
+	plt.show()
+
+
+def getCI_UN(p, lam, mu, percentage=0.95):
+
+	waitTimesU = np.zeros(30)
+	waitTimesN = np.zeros(30)
+
+	for i in range(len(waitTimesU)):
+		U, N = simulateUN(p, lam, mu, t = 50)
+		waitTimesU[i] = expectedTime(np.average(U),lam)
+		waitTimesN[i] = expectedTime(np.average(N),lam)
+
+	print("Normal distribution")
+	CI_U = st.norm.interval(0.95, loc=np.mean(waitTimesU), scale=st.sem(waitTimesU))
+	print(f"Wait times 95% CI Urgent: {CI_U[0]*60:.2f} - {CI_U[1]*60:.2f} mins, {CI_U[0]:.4f} - {CI_U[1]:.4f} hours")
+
+	CI_N = st.norm.interval(0.95, loc=np.mean(waitTimesN), scale=st.sem(waitTimesN))
+	print(f"Wait times 95% CI Normal: {CI_N[0]*60:.2f} - {CI_N[1]*60:.2f} mins, {CI_N[0]:.4f} - {CI_N[1]:.4f} hours")
 
 # Main section
 # --------------------------------------------------
@@ -163,10 +270,16 @@ def plotRealizationX(lam=5, mu=6):
 
 lam, mu = 5, 6
 
-plotRealizations(2, lam, mu)
+# plotRealizations(2, lam, mu)
 
-getCI(lam,mu)
+# getCI(lam,mu)
 
 # getExactWaitTime(lam,mu)
 
 # plotRealizationX(lam, mu)
+
+# plotRealizationsUN(1, 0.8, lam, mu, t=1/8)
+
+# plotRealizationUN(t=1)
+
+# getCI_UN(0.8, lam, mu)
