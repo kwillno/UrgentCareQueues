@@ -181,8 +181,55 @@ def problem_2_b():
     plt.show()
 
 
+'''
+PROBLEM 2C
+'''
+
+xB = np.array([0.30, 0.33, 0.35, 0.39, 0.41, 0.45]) # measured values of theta given in the problem sheet
+yB = np.array([0.5, 0.40, 0.32, 0.40, 0.35, 0.60]) # measured values of y(theta) given in the problem sheet
+
+def problem_2_c1():
+    # We construct the mu_C values
+    mu_C, sigma_C, var_C, inds = make_mu_sigma_C()
+    ind_values = np.array([i for i in range(len(inds)) if inds[i]])
+    ind_values -= np.arange(len(ind_values))
+    mu_C_new = np.insert(mu_C, ind_values, yB)
+    var_C = np.insert(var_C, ind_values, np.zeros(len(ind_values)))
+
+    # here we construct the confidence interval 
+    print(np.shape(mu_C_new))
+    print(np.shape(var_C))
+    upper, lower = make_conf_intervalls(mu_C_new, var_C)
+
+    # here we plot it all
+    plt.figure(figsize=(10,6))
+    plt.plot(xB, yB,'o')
+    plt.plot(grid, mu_C_new, color='b', label='Conditional mean')
+    plt.fill_between(grid, lower, upper, color='b', alpha=0.1)
+    #plt.xlabel(r'\textbf{\theta}')
+    plt.grid()
+    plt.show()
+
+def problem_2_c2():
+    # We construct the mu_C values
+    mu_C, sigma_C, var_C, inds = make_mu_sigma_C()
+    ind_values = np.array([i for i in range(len(inds)) if inds[i]])
+    ind_values -= np.arange(len(ind_values))
+    mu_C_new = np.insert(mu_C, ind_values, yB)
+    var_C = np.insert(var_C, ind_values, 1e-5*np.ones(len(ind_values)))
+
+    # here we construct the confidence interval 
+    upper, lower = make_conf_intervalls(mu_C_new, var_C)
+
+    cd_vals = norm.cdf(0.3*np.ones_like(mu_C_new), mu_C_new, np.sqrt(var_C))
+
+    plt.plot(grid, cd_vals)
+    plt.show()
+
+
+
 def main() -> None:
-    plot_mu_C()
-    problem_2_b()
+    problem_2_c2()
+    
 main() 
 
