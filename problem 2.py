@@ -148,7 +148,9 @@ def plot_mu_C():
     plt.plot(xB, yB,'o')
     plt.plot(grid, mu_C_new, color='b', label='Conditional mean')
     plt.fill_between(grid, lower, upper, color='b', alpha=0.1)
-    #plt.xlabel(r'\textbf{\theta}')
+    plt.title("Prediction, with 90% prediction interval")
+    plt.xlabel("$\\theta$")
+    plt.ylabel("$Y(\\theta)$")
     plt.grid()
     plt.show()
 
@@ -172,6 +174,10 @@ def problem_2_b():
     cd_vals = norm.cdf(0.3*np.ones_like(mu_C_new), mu_C_new, np.sqrt(var_C))
 
     plt.plot(grid, cd_vals)
+    plt.title("Cond. Prob. Y(θ) < 0.30")
+    plt.xlabel("$\\theta$")
+    plt.ylabel("Conditional probability")
+    plt.grid()
     plt.show()
 
 
