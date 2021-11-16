@@ -208,6 +208,10 @@ def problem_2_c1():
     plt.fill_between(grid, lower, upper, color='b', alpha=0.1)
     #plt.xlabel(r'\textbf{\theta}')
     plt.grid()
+    plt.title("Prediction, with 90% PI, using $6$ points")
+    plt.xlabel("$\\theta$")
+    plt.ylabel("$Y(\\theta)$")
+    plt.grid()
     plt.show()
 
 def problem_2_c2():
@@ -224,11 +228,16 @@ def problem_2_c2():
     cd_vals = norm.cdf(0.3*np.ones_like(mu_C_new), mu_C_new, np.sqrt(var_C))
 
     plt.plot(grid, cd_vals)
+    plt.title("P{Y(θ) < 0.30} with $6$ points")
+    plt.xlabel("$\\theta$")
+    plt.ylabel("P{Y(θ) < 0.30}")
+    plt.grid()
     plt.show()
 
 
 
 def main() -> None:
+    problem_2_c1()
     problem_2_c2()
     
 main() 
