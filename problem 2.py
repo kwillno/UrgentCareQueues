@@ -25,18 +25,9 @@ yB = np.array([0.5, 0.32, 0.40, 0.35, 0.60]) # measured values of y(theta) given
 # FUNCTIONS
 
 
-def make_grid(xy1=0.25, xy2=0.505, delta=0.005):
-    '''
-    This function makes a (xy2-xy1/delta)x(xy2-xy1/delta) dimensional grid, which makes it easier to create the sigma-matrix
-    '''
-    xy_arr = np.arange(xy1, xy2, delta)
-    X,Y = np.meshgrid(xy_arr, xy_arr)
-    return (X+Y)/2
-
-
 def make_mu(t, m=0.5):
     '''
-    here we initialize each component of the mu-vector with the help of m()
+    here we initialize each component of the mu-vector (who has the length of t) with the value of m=0.5
     '''
     n = len(t)
     mu = np.zeros(n)
@@ -66,7 +57,7 @@ def make_standard_sigma(xB):
     '''
     Uses the covariance-function to initialize aech component of the sigma-matrix
     '''
-    sigma = np.zeros((len(xB), len(xB)))
+    sigma = np.zeros((len(xB), len(xB))) # 
     n = len(sigma)
     for i in range(n):
         for j in range(n):
@@ -216,6 +207,11 @@ def problem_2_c2():
     upper, lower = make_conf_intervalls(mu_C_new, var_C)
 
     cd_vals = norm.cdf(0.3*np.ones_like(mu_C_new), mu_C_new, np.sqrt(var_C))
+
+    maks = np.amax(cd_vals)
+    maks_index = np.argmax(cd_vals)
+
+    print(f'max value: {maks}   index of max value: {maks_index}')
 
     plt.plot(grid, cd_vals)
     plt.show()
