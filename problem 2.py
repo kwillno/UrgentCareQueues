@@ -1,9 +1,11 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 from numpy import lib
-from scipy.stats import norm
+from scipy.stats import norm 
 from scipy.stats.mstats_basic import linregress
 from scipy.linalg import inv
+import matplotlib
+matplotlib.rcParams['text.usetex'] = True
 
 
 
@@ -145,14 +147,38 @@ def plot_mu_C():
     # here we plot it all
     plt.figure(figsize=(10,6))
     plt.plot(xB, yB,'o')
-    plt.plot(grid, mu_C_new, 'b')
+    plt.plot(grid, mu_C_new, color='b', label='Conditional mean')
     plt.fill_between(grid, lower, upper, color='b', alpha=0.1)
+    #plt.xlabel(r'\textbf{\theta}')
     plt.grid()
     plt.show()
 
 
+
+""" 
+PROBLEM 2B
+"""
+
+def problem_2_b():
+    # We construct the mu_C values
+    mu_C, sigma_C, var_C, inds = make_mu_sigma_C()
+    ind_values = np.array([i for i in range(len(inds)) if inds[i]])
+    ind_values -= np.arange(len(ind_values))
+    mu_C_new = np.insert(mu_C, ind_values, yB)
+    var_C = np.insert(var_C, ind_values, np.zeros(len(ind_values)))
+
+    # here we construct the confidence interval 
+    print(np.shape(mu_C_new))
+    print(np.shape(var_C))
+    upper, lower = make_conf_intervalls(mu_C_new, var_C)
+
+    cd_vals = norm.cdf(0.3*np.ones_like(mu_C_new), mu_C_new, np.sqrt(var_C))
+    print(cd_vals)
+    plt.plot(grid, cd_vals)
+    plt.show()
+
+
 def main() -> None:
-    a =1
+    problem_2_b()
 main() 
 
-plot_mu_C()
