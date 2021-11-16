@@ -33,7 +33,7 @@ def make_grid(xy1=0.25, xy2=0.505, delta=0.005):
     return (X+Y)/2
 
 
-def make_mu(t, m=5):
+def make_mu(t, m=0.5):
     '''
     here we initialize each component of the mu-vector with the help of m()
     '''
@@ -83,13 +83,9 @@ def index(tB, t):
     return new_tB
 
 
-
-    
-
-def main() -> None:
-
+def make_mu_sigma_C():
     inds = index(xB, grid)
-    inds_Compliment = np.invert(inds)
+    inds_Complement = np.invert(inds)
 
     #construction of the original muA, muB and sigma
     muA = make_mu(grid)
@@ -98,30 +94,65 @@ def main() -> None:
 
     # Construction of the components of mu_C and sigma_C
 
-    mu_A = muA[inds]
-    sigma_BB = sigma[np.ix_(inds_Compliment, inds_Compliment)]
-    sigma_AB = sigma[np.ix_(inds, inds_Compliment)]
+    mu_A = muA[inds_Complement]
+    sigma_BB = sigma[np.ix_(inds, inds)]
+    sigma_AB = sigma[np.ix_(inds_Complement, inds)]
 
-    sigma_AA = sigma[np.ix_(inds, inds)]
-    sigma_BA = sigma[np.ix_(inds_Compliment, inds)]
+    sigma_AA = sigma[np.ix_(inds_Complement, inds_Complement)]
+    sigma_BA = sigma[np.ix_(inds, inds_Complement)]
 
-    print(np.shape(sigma_AA))
-    print(np.shape(sigma_BB))
-    print(np.shape(sigma_AB))
-    print(np.shape(sigma_BA))
 
     # the making of mu_C and sigma_C
     #mu_C:
-    a = (xB - muB)
-    b = np.matmul(inv(sigma_BB), a)
-    print(b)
-    c = np.matmul(sigma_AB, b)
-    mu_C = mu_A + c
+    mu_C = mu_A + sigma_AB @ np.linalg.solve(sigma_BB, (yB - muB))
     #sigma_C
-    a = np.matmul(sigma_BA, (sigma_BB))
+    a = np.matmul(inv(sigma_BB), sigma_BA)
     b = np.matmul(sigma_AB, a)
-    sigma_C = sigma_AA - b 
+    sigma_C = sigma_AA - b
 
-    print(mu_C)
+    var_C = np.diagonal(sigma_C)
 
+    return mu_C, sigma_C, var_C, inds
+
+
+def predInt(i, var_C):
+    """Returns 90% prediciton interval for theta_i"""
+    return 1.645*np.sqrt(var_C[i])
+
+
+def make_conf_intervalls(mu, var):
+    """Returns upper and lower bound with respect to the prediciton interval"""
+    upper = np.zeros_like(mu)
+    lower = np.zeros_like(mu)
+    for i, mu_i in np.ndenumerate(mu):
+        upper[i], lower[i] = mu_i + predInt(i, var), mu_i - predInt(i, var)
+    return upper, lower
+ 
+
+def plot_mu_C():
+    # We construct the mu_C values
+    mu_C, sigma_C, var_C, inds = make_mu_sigma_C()
+    ind_values = np.array([i for i in range(len(inds)) if inds[i]])
+    ind_values -= np.arange(len(ind_values))
+    mu_C_new = np.insert(mu_C, ind_values, yB)
+    var_C = np.insert(var_C, ind_values, np.zeros(len(ind_values)))
+
+    # here we construct the confidence interval 
+    print(np.shape(mu_C_new))
+    print(np.shape(var_C))
+    upper, lower = make_conf_intervalls(mu_C_new, var_C)
+
+    # here we plot it all
+    plt.figure(figsize=(10,6))
+    plt.plot(xB, yB,'o')
+    plt.plot(grid, mu_C_new, 'b')
+    plt.fill_between(grid, lower, upper, color='b', alpha=0.1)
+    plt.grid()
+    plt.show()
+
+
+def main() -> None:
+    a =1
 main() 
+
+plot_mu_C()
