@@ -209,6 +209,10 @@ def problem_2_c1():
     plt.plot(grid, mu_C_new, color='b', label='Conditional mean')
     plt.fill_between(grid, lower, upper, color='b', alpha=0.1)
     plt.grid()
+    plt.title("Prediction, with 90% PI, using $6$ points")
+    plt.xlabel("$\\theta$")
+    plt.ylabel("$Y(\\theta)$")
+    plt.grid()
     plt.show()
 
 def problem_2_c2():
@@ -230,11 +234,16 @@ def problem_2_c2():
     print(f'max value: {maks}   index of max value: {maks_index}')
 
     plt.plot(grid, cd_vals)
+    plt.title("P{Y(θ) < 0.30} with $6$ points")
+    plt.xlabel("$\\theta$")
+    plt.ylabel("P{Y(θ) < 0.30}")
+    plt.grid()
     plt.show()
 
 
 
 def main() -> None:
+    problem_2_c1()
     problem_2_c2()
     
 main() 
