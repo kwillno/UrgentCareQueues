@@ -1,11 +1,10 @@
 import numpy as np 
 import matplotlib.pyplot as plt
-from numpy import lib
+from numpy import lib, nan
 from scipy.stats import norm 
 from scipy.stats.mstats_basic import linregress
 from scipy.linalg import inv
 import matplotlib
-matplotlib.rcParams['text.usetex'] = True
 
 
 
@@ -165,20 +164,19 @@ def problem_2_b():
     ind_values = np.array([i for i in range(len(inds)) if inds[i]])
     ind_values -= np.arange(len(ind_values))
     mu_C_new = np.insert(mu_C, ind_values, yB)
-    var_C = np.insert(var_C, ind_values, np.zeros(len(ind_values)))
+    var_C = np.insert(var_C, ind_values, 1e-5*np.ones(len(ind_values)))
 
     # here we construct the confidence interval 
-    print(np.shape(mu_C_new))
-    print(np.shape(var_C))
     upper, lower = make_conf_intervalls(mu_C_new, var_C)
 
     cd_vals = norm.cdf(0.3*np.ones_like(mu_C_new), mu_C_new, np.sqrt(var_C))
-    print(cd_vals)
+
     plt.plot(grid, cd_vals)
     plt.show()
 
 
 def main() -> None:
+    plot_mu_C()
     problem_2_b()
 main() 
 
