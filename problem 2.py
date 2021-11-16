@@ -202,7 +202,6 @@ def problem_2_c1():
     plt.title("Prediction, with 90% PI, using $6$ points")
     plt.xlabel("$\\theta$")
     plt.ylabel("$Y(\\theta)$")
-    plt.grid()
     plt.show()
 
 def problem_2_c2():
@@ -221,7 +220,7 @@ def problem_2_c2():
     maks = np.amax(cd_vals)
     maks_index = np.argmax(cd_vals)
 
-    print(f'max value: {maks}   index of max value: {maks_index}')
+    print(f'max value: {maks:.4f}, index of max value: {grid [maks_index]:.2f}')
 
     plt.plot(grid, cd_vals)
     plt.title("P{Y(θ) < 0.30} with $6$ points")
