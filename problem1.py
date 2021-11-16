@@ -141,35 +141,37 @@ def getWaitTimeExtremes(lam, mu):
 # ---------------------------
 # problem 1g
 
-def simulateUN(p, lam, mu, t=50):
+def muFnc(u, n, mu):
+	if u+n == 0:
+		return 0
+	return mu
 
+
+def simulateUN(p, lam, mu, t=50):
 	lam, mu = lam/60, mu/60
 	
 	timeslices = int(t*24*60)
 	U = np.zeros(timeslices)
 	N = np.zeros(timeslices)
+	block = 0
 
 	for i in range(1, timeslices):
-		S = int(np.random.exponential((mu + lam)**(-1)))
-		block = i + S
-		change = np.random.choice([-1,1], p=( mu/(mu+lam) , lam/(mu+lam) ))
 		U[i] = U[i-1]
 		N[i] = N[i-1]
 
 		if not (i < block):
+			mu_i = muFnc(U[i-1], N[i-1], mu)
+			S = (np.random.exponential((mu_i + lam)**(-1)))
+			block = i + S
+			change = np.random.choice([-1,1], p=( mu_i/(mu_i + lam) , lam/(mu_i + lam) ))
+
 			if (
-				(U[i] == 0 and change == -1) or 
+				(U[i-1] == 0 and change == -1) or 
 				(np.random.uniform() > p and change == 1)
 			):
 				N[i] += change
 			else:
 				U[i] += change
-
-		if U[i] < 0:
-			U[i] = 0
-
-		if N[i] < 0:
-			N[i] = 0
 
 	return U,N
 
@@ -179,6 +181,7 @@ def plotRealizationsUN(n, p, lam, mu, t=50):
 		U, N = simulateUN(p, lam, mu, t)
 		plt.plot(U, "b", label="Urgent")
 		plt.plot(N, "r", label="Normal")
+	plt.grid()
 	plt.legend()
 	plt.show()
 
@@ -195,12 +198,12 @@ def plotRealizationUN(p=0.8, lam=5, mu=6, t=1):
 
 	plt.figure("Try")
 	plt.title("Realization of $X(t)$")
-	plt.plot(0,0,"b",label="Urgent")
+	plt.plot(0,0,"b",label="$U(t)$")
 	for x,y in curvesU:
 		x,y = np.array(x), np.array(y)
 		plt.plot(x/60,y,"b")
 
-	plt.plot(0,0,"r",label="Normal")
+	plt.plot(0,0,"r",label="$N(t)$")
 	for x,y in curvesN:
 		x,y = np.array(x), np.array(y)
 		plt.plot(x/60,y,"r")
@@ -217,8 +220,8 @@ def getCI_UN(p, lam, mu, percentage=0.95):
 
 	for i in range(len(waitTimesU)):
 		U, N = simulateUN(p, lam, mu, t = 50)
-		waitTimesU[i] = expectedTime(np.average(U),lam)
-		waitTimesN[i] = expectedTime(np.average(N),lam)
+		waitTimesU[i] = expectedTime(np.average(U),p*lam)
+		waitTimesN[i] = expectedTime(np.average(N),(1-p)*lam)
 
 	print("Normal distribution")
 	CI_U = st.norm.interval(0.95, loc=np.mean(waitTimesU), scale=st.sem(waitTimesU))
@@ -255,7 +258,7 @@ lam, mu = 5, 6
 
 # plotRealizationsUN(1, 0.8, lam, mu, t=1/8)
 
-# plotRealizationUN(t=1)
+# plotRealizationUN(t=1/2)
 
 # getCI_UN(0.8, lam, mu)
 
