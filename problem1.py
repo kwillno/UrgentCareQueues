@@ -15,7 +15,7 @@ def simulateX(lam, mu, t=50):
 	lam, mu = lam/60, mu/60
 
 	# Setting timesteps to the minutes in each day.
-	N = t*24*60
+	N = int(t*24*60)
 	X = np.zeros(N)
 	t = np.zeros(N)
 
@@ -25,7 +25,7 @@ def simulateX(lam, mu, t=50):
 		# Getting exponentially distributed sojourn time
 		# and blocking action until it ends.
 		S = int(np.random.exponential(lam + mu))
-		block = t[i-1] + s - 1
+		block = t[i-1] + S - 1
 
 		# Action when updating state.
 		if t[i] > block:
@@ -298,21 +298,21 @@ def getExact_UN(p=0.8, lam=5, mu=6):
 
 lam, mu = 5, 6
 
-# plotRealizations(2, lam, mu)
+plotRealizations(2, lam, mu)
 
-# getCI(lam,mu)
+getCI(lam,mu)
 
-# getExactWaitTime(lam,mu)
+getExactWaitTime(lam,mu)
 
-# plotRealizationX(lam, mu)
+plotRealizationX(lam, mu)
 
-# plotWaits(lam,mu)
-# getWaitTimeExtremes(lam, mu)
+plotWaits(lam,mu)
+getWaitTimeExtremes(lam, mu)
 
-# plotRealizationsUN(1, 0.8, lam, mu, t=1/8)
+plotRealizationsUN(1, 0.8, lam, mu, t=1/8)
 
-# plotRealizationUN(t=1/2)
+plotRealizationUN(t=1/2)
 
-# getCI_UN(0.8, lam, mu)
+getCI_UN(0.8, lam, mu)
 
-# getExact_UN()
+getExact_UN()

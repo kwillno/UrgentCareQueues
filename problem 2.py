@@ -2,16 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy import lib, nan
 from scipy.stats import norm 
-from scipy.stats.mstats_basic import linregress
 from scipy.linalg import inv
-import matplotlib
 
 
-
-'''
+"""
 PROBLEM 2a
-'''
-
+"""
 
 # ARRAYS AND VARIABLES
 
@@ -19,16 +15,12 @@ grid = np.arange(0.25, 0.505, 0.005) # an array with 51 elements from 0.25 to 0.
 xB = np.array([0.30, 0.35, 0.39, 0.41, 0.45]) # measured values of theta given in the problem sheet
 yB = np.array([0.5, 0.32, 0.40, 0.35, 0.60]) # measured values of y(theta) given in the problem sheet
 
-
-
-
 # FUNCTIONS
 
-
 def make_mu(t, m=0.5):
-    '''
+    """
     here we initialize each component of the mu-vector (who has the length of t) with the value of m=0.5
-    '''
+    """
     n = len(t)
     mu = np.zeros(n)
     for i in range(len(mu)):
@@ -38,25 +30,25 @@ def make_mu(t, m=0.5):
 
 
 def r(t1, t2):
-    '''
+    """
     This is the corrolation-function implementes as given in the problem-sheet.
-    '''
+    """
     return (1+15*abs(t1-t2))*np.exp(-15*abs(t1-t2))
 
 
 
 def C(t1, t2, s=0.5**2):
-    '''
+    """
     This is the covariance-function impemented as given in the problem-sheet
-    '''
+    """
     return s*r(t1, t2)
 
 
 
 def make_standard_sigma(xB):
-    '''
+    """
     Uses the covariance-function to initialize aech component of the sigma-matrix
-    '''
+    """
     sigma = np.zeros((len(xB), len(xB))) # a matrix where we are going to place the values of sigma
     n = len(sigma)
     for i in range(n):
@@ -66,9 +58,9 @@ def make_standard_sigma(xB):
 
 
 def index(tB, t):
-    '''
+    """
     returns the boolean-indicies of where the theta-values from tB are in t
-    '''
+    """
     new_tB = np.zeros(len(t), dtype=bool) # new array to hold boolean values
     for i in range(len(t)):
         new_tB[i] = any(abs(tB-t[i])<1e-10) # uses any() to check if the i_th element of t is in tB
@@ -76,10 +68,10 @@ def index(tB, t):
 
 
 def make_mu_sigma_C():
-    '''
+    """
     This function constructs all the relevant submatricies of sigma, so we can use them 
     to construct the conditional mu and sigma matricies. 
-    '''
+    """
     inds = index(xB, grid) # inds is a boolean array where every element of grid that is in xB is True
     inds_Complement = np.invert(inds) # inverts inds so Truth becomes False and vice verca
 
@@ -111,12 +103,16 @@ def make_mu_sigma_C():
 
 
 def predInt(i, var_C):
-    """Returns 90% prediciton interval for theta_i"""
+    """
+    Returns 90% prediciton interval for theta_i
+    """
     return 1.645*np.sqrt(var_C[i])
 
 
 def make_conf_intervalls(mu, var):
-    """Returns upper and lower bound with respect to the prediciton interval"""
+    """
+    Returns upper and lower bound with respect to the prediciton interval
+    """
     upper = np.zeros_like(mu)
     lower = np.zeros_like(mu)
     for i, mu_i in np.ndenumerate(mu):
@@ -125,11 +121,11 @@ def make_conf_intervalls(mu, var):
  
 
 def plot_mu_C():
-    '''
+    """
     In this function we use the functions above to initialize conditional mu and conditional var, and use these 
     arrays toughether with grid (that holds the theta-values) to plot conditional theta and a 90% prediction
     interval.
-    '''
+    """
     mu_C, sigma_C, var_C, inds = make_mu_sigma_C()
     ind_values = np.array([i for i in range(len(inds)) if inds[i]])
     ind_values -= np.arange(len(ind_values))
@@ -157,10 +153,10 @@ PROBLEM 2B
 """
 
 def problem_2_b():
-    '''
+    """
     here we use norm.cdf to find the conditional probability that y(theta)<0.30. 
     We call the array with those values cd_val, and plot them as a function of theta.
-    '''
+    """
 
     # down below we initialize the necessarry variables needed to construct cd_vals
     mu_C, sigma_C, var_C, inds = make_mu_sigma_C()
@@ -180,12 +176,12 @@ def problem_2_b():
     plt.show()
 
 
-'''
+"""
 PROBLEM 2C
 
 Here we just use the functions that we have constructed, explained and used earlier to 
 plot the same things as in a) and b), but with a point added to grid
-'''
+"""
 
 # these are the same values as before, but with the point (0.33, 0.40) added
 xB = np.array([0.30, 0.33, 0.35, 0.39, 0.41, 0.45]) 
@@ -241,7 +237,12 @@ def problem_2_c2():
 
 
 
-def main() -> None:
+def main():
+
+    plot_mu_C()
+
+    problem_2_b()
+
     problem_2_c1()
     problem_2_c2()
     
